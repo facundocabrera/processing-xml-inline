@@ -1,0 +1,43 @@
+<!doctype html>
+<html>
+<head></head>
+<body>
+
+<div id="xml"><!--<jobs><job><title>job 1 title</title><desc>here you will see the job description</desc></job></jobs>--></div>
+
+<div id="xsl"><!--<xsl:stylesheet version="2.0" xmlns:xsl="http://www.w3.org/1999/XSL/Transform">
+  <xsl:template match="job">
+    <h2><xsl:value-of select="title" /></h2>
+    <p><strong>Description:</strong><xsl:value-of select="title" /></p>
+  </xsl:template>
+
+  <xsl:output method="html" omit-xml-declaration="yes" standalone="yes" indent="yes" media-type="text/html" />
+</xsl:stylesheet>
+--></div>
+
+<div id="html">
+    <h1>Here I'm going to show you the final result</h1>
+</div>
+
+<script>
+var doc = document;
+
+var xml = doc.getElementById("xml").firstChild.nodeValue;
+var xsl = doc.getElementById("xsl").firstChild.nodeValue;
+
+var fragment = null;
+var output = doc.getElementById("html");
+
+var xsltProcessor = new XSLTProcessor();
+
+var parser = new DOMParser();
+var testTransform = parser.parseFromString(xsl, "text/xml");
+var xml = parser.parseFromString(xml, "text/xml");
+
+xsltProcessor.importStylesheet(testTransform);
+fragment = xsltProcessor.transformToFragment(xml,doc);
+
+output.appendChild( fragment );
+</script>
+</body>
+</html>
