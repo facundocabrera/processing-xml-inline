@@ -1,43 +1,120 @@
 <!doctype html>
 <html>
-<head></head>
-<body>
+<head>
+	<title>XSL transformation support inside browsers</title>
 
-<div id="xml"><!--<jobs><job><title>job 1 title</title><desc>here you will see the job description</desc></job></jobs>--></div>
+	<link rel="stylesheet" href="lib/codemirror/codemirror.css">
+	<link rel="stylesheet" href="css/normalize.css">
+	<link rel="stylesheet" href="css/base.css">
 
-<div id="xsl"><!--<xsl:stylesheet version="2.0" xmlns:xsl="http://www.w3.org/1999/XSL/Transform">
-  <xsl:template match="job">
-    <h2><xsl:value-of select="title" /></h2>
-    <p><strong>Description:</strong><xsl:value-of select="title" /></p>
-  </xsl:template>
+	<script src="lib/codemirror/codemirror.js"></script>
+	<script src="lib/codemirror/mode/xml/xml.js"></script>
+</head>
+<body>	
+	<ul>
+		<li><a href="#xml-tab">xml</a></li>
+		<li><a href="#xsl-tab">xsl</a></li>
+		<li><a href="#output-tab">output</a></li>
+	</ul>
 
-  <xsl:output method="html" omit-xml-declaration="yes" standalone="yes" indent="yes" media-type="text/html" />
-</xsl:stylesheet>
---></div>
+	<div class="content">
+		<div id="xml-tab">
+			<!-- data example -->
+			<textarea id="xml">
+			<jobs>
+				<job>
+					<title>job 1 title</title>
+					<desc>here you will see the job description</desc>
+				</job>
+			</jobs>
+			</textarea>
+		</div>
+		
+		<div id="xsl-tab">
+			<!-- transformation example -->
+			<textarea id="xsl">
+			<xsl:stylesheet version="2.0" xmlns:xsl="http://www.w3.org/1999/XSL/Transform">
+			  <xsl:template match="job">
+				<h2><xsl:value-of select="title" /></h2>
+				<p><strong>Description:</strong><xsl:value-of select="desc" /></p>
+			  </xsl:template>
+			  <xsl:output method="html" omit-xml-declaration="yes" standalone="yes" indent="yes" media-type="text/html" />
+			</xsl:stylesheet>
+			</textarea>
+		</div>
+		
+		<div id="output-tab">
+			<div id="output"></div>
+		</div>
+	</div><!-- .content -->
 
-<div id="html">
-    <h1>Here I'm going to show you the final result</h1>
-</div>
+	<script>
+	var xml = CodeMirror.fromTextArea(
+		document.getElementById("xml"), 
+		{
+			mode: {name: "xml", alignCDATA: true},
+			lineNumbers: true,
+			tabSize: 2
+		}
+	);
+	
+	var xsl = CodeMirror.fromTextArea(
+		document.getElementById("xsl"), 
+		{
+			mode: {name: "xml", alignCDATA: true},
+			lineNumbers: true,
+			tabSize: 2
+		}
+	);
 
-<script>
-var doc = document;
+	document.querySelector('a[href="#xml-tab"]').addEventListener('click', function() {
+		// fire refresh async because I need the target updated before refresh
+		window.setTimeout(function(){
+			xml.refresh();
+		});
+	}, false);
+	
+	document.querySelector('a[href="#xsl-tab"]').addEventListener('click', function() {
+		// fire refresh async because I need the target updated before refresh
+		window.setTimeout(function(){
+			xsl.refresh();
+		});
+	}, false);
 
-var xml = doc.getElementById("xml").firstChild.nodeValue;
-var xsl = doc.getElementById("xsl").firstChild.nodeValue;
-
-var fragment = null;
-var output = doc.getElementById("html");
-
-var xsltProcessor = new XSLTProcessor();
-
-var parser = new DOMParser();
-var testTransform = parser.parseFromString(xsl, "text/xml");
-var xml = parser.parseFromString(xml, "text/xml");
-
-xsltProcessor.importStylesheet(testTransform);
-fragment = xsltProcessor.transformToFragment(xml,doc);
-
-output.appendChild( fragment );
-</script>
+	document.querySelector('a[href="#output-tab"]').addEventListener('click', function(event) {
+		var doc = document;
+		
+		var xmlText = window.xml.getValue();
+		var xslText = window.xsl.getValue();
+		
+		var fragment = null;
+		
+		// remove all the descendant from output
+		var output = doc.getElementById("output");
+		while (output.firstChild) {
+			output.removeChild(output.firstChild);
+		}
+	
+		var xsltProcessor = new XSLTProcessor();
+		
+		var parser = new DOMParser();
+		var testTransform = parser.parseFromString(xslText, "text/xml");
+		var xml = parser.parseFromString(xmlText, "text/xml");
+		
+		xsltProcessor.importStylesheet(testTransform);
+		fragment = xsltProcessor.transformToFragment(xml,doc);
+		
+		output.appendChild( fragment );
+	}, false);
+	
+	// set default tab using javascript
+	(function() {
+		var evt = document.createEvent("MouseEvents");
+  		evt.initMouseEvent(
+  			"click", true, true, window, 0, 0, 0, 0, 0, false, false, false, false, 0, null
+  		);
+  		document.querySelector('a[href="#xml-tab"]').dispatchEvent(evt);
+	})();
+	</script>
 </body>
 </html>

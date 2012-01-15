@@ -1,0 +1,37 @@
+ul > li {
+	display: inline;
+	list-style: none inside;
+}
+
+ul > li > a {
+	padding: 10px;
+	text-decoration: none;
+	background: #CCC;
+}
+
+ul > li > a:hover {
+	background: #EAEAEA; 
+}
+
+.content {
+	position: relative;
+}
+
+#xml-tab, #xsl-tab, #output-tab {
+	position: absolute;
+	top: 0; left: 0; right: 0; bottom: 0;
+	background: #FFF;
+	display: none; /* hide everything by default */
+}
+
+#xml-tab:target, #xsl-tab:target, #output-tab:target {
+	display: block; /* show clicked tab */
+}
+
+.CodeMirror-scroll {
+	min-height: 600px;
+}
+
+.CodeMirror, #output {
+	border: 1px solid rgba(0, 0, 0, 0.15);
+}
